@@ -114,14 +114,25 @@
 			        <goal>generate</goal>
 			      </goals>
 			      <configuration>
-			      	<skip>true</skip>
-			          <jdbc>
-					    <driver>org.postgresql.Driver</driver>
-					    <!-- TODO: Move to profile loaded variables -->
-					    <url>jdbc:postgresql://localhost:5432/appuser</url>
-					    <user>appuser</user>
-					    <password>password</password>
-					  </jdbc>
+			      	<skip>false</skip>
+			      	<jdbc>
+					  <driver>org.postgresql.Driver</driver>
+					  <!-- TODO: Move to profile loaded variables -->
+					  <url>jdbc:postgresql://localhost:5432/appuser</url>
+					  <user>appuser</user>
+					  <password>password</password>
+					</jdbc>
+					<generator>
+						<database>
+						  <name>org.jooq.meta.postgres.PostgresDatabase</name>
+						  <includes>.*</includes>
+					      <excludes>databasechange.*</excludes>
+					      <inputSchema>public</inputSchema>
+						</database>
+						<target>
+							<packageName>com.nthomas.jooqcodegenwithpostgres.generated</packageName>
+						</target>
+					</generator>
 			      </configuration>
 			    </execution>
 			  </executions>
