@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - logicalFilePath: db.changelog-master.yaml
+
+  - include:
+      file: db.changelog-users.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-user-identities.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: db.changelog-user-passwords.yaml
+      relativeToChangelogFile: true

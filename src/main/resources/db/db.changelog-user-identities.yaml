@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - logicalFilePath: db.changelog-identities.yaml
+  - preConditions:
+      - dbms:
+          type: postgresql
+  
+  - changeSet:
+      id: 1
+      author: nate.p.thomas@gmail.com
+      changes:
+        - createTable:
+            tableName: user_identities
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_user_identities_users
+                    references: users(id)
+              - column:
+                  name: name
+                  type: varchar
+              - column:
+                  name: type
+                  type: varchar

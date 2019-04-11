@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - logicalFilePath: db.changelog-users.yaml
+  - preConditions:
+      - dbms:
+          type: postgresql
+  
+  - changeSet:
+      id: 1
+      author: nate.p.thomas@gmail.com
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: firstname
+                  type: varchar
+              - column:
+                  name: lastname
+                  type: varchar
