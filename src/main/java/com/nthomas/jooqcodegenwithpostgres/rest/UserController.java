@@ -11,6 +11,10 @@ import com.nthomas.jooqcodegenwithpostgres.model.LoginRequest;
 import com.nthomas.jooqcodegenwithpostgres.model.UserProfile;
 import com.nthomas.jooqcodegenwithpostgres.service.UserService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api(value = "User", tags = "User")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -22,11 +26,13 @@ public class UserController {
 		this.userService = userService;
 	}
 
+	@ApiOperation(value = "Create a new user")
 	@PostMapping
 	public UserProfile createUser(@RequestBody CreateUserRequest createUserRequest) {
 		return userService.createUser(createUserRequest);
 	}
 
+	@ApiOperation(value = "User login")
 	@PostMapping(path = "/login")
 	public UserProfile login(@RequestBody LoginRequest loginRequest) {
 		return userService.verify(loginRequest.getUsername(), loginRequest.getPassword());
