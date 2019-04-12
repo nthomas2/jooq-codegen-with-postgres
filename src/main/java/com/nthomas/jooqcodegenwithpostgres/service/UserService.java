@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.nthomas.jooqcodegenwithpostgres.generated.tables.records.UserIdentitiesRecord;
 import com.nthomas.jooqcodegenwithpostgres.generated.tables.records.UsersRecord;
 import com.nthomas.jooqcodegenwithpostgres.model.CreateUserRequest;
+import com.nthomas.jooqcodegenwithpostgres.model.UpdateUserRequest;
 import com.nthomas.jooqcodegenwithpostgres.model.UserProfile;
 
 @Service
@@ -56,14 +57,20 @@ public class UserService {
 			.returning()
 			.fetchOne();
 
-		context.insertInto(USER_PASSWORDS)
-			.set(USER_PASSWORDS.USER_ID, user.getId())
-			.set(USER_PASSWORDS.PASSWORD, passwordEncoder.encode(createUserRequest.getPassword()))
-			.execute();
+		createUserPassword(user, createUserRequest.getPassword());
 
 		return userToUserProfile(user, userIdentity);
 	}
 
+	@Transactional
+	public void createUserPassword(UsersRecord user, String password) {
+		context.insertInto(USER_PASSWORDS)
+		.set(USER_PASSWORDS.USER_ID, user.getId())
+		.set(USER_PASSWORDS.PASSWORD, passwordEncoder.encode(password))
+		.execute();
+	}
+
+	@Transactional(readOnly = true)
 	public Boolean checkIfUsernameTaken(String username) {
 		return context.selectOne()
 			.from(USERS)
@@ -77,7 +84,9 @@ public class UserService {
 		UserProfile profile = new UserProfile();
 		profile.setFirstName(user.getFirstname());
 		profile.setLastName(user.getLastname());
-		profile.setUserName(userIdentity.getName());
+		if (userIdentity != null) {
+			profile.setUserName(userIdentity.getName());
+		}
 
 		return profile;
 	}
@@ -101,5 +110,28 @@ public class UserService {
 		}
 
 		return userToUserProfile(result.get().into(USERS), result.get().into(USER_IDENTITIES));
+	}
+
+	@Transactional
+	public UserProfile updateUser(UpdateUserRequest updateUserRequest) {
+		UserProfile existingProfile = verify(updateUserRequest.getUsername(), updateUserRequest.getCurrentPassword());
+
+		UsersRecord user = context.update(USERS)
+			.set(USERS.FIRSTNAME, updateUserRequest.getFirstName())
+			.set(USERS.LASTNAME, updateUserRequest.getLastName())
+			.from(USER_IDENTITIES)
+			.where(USER_IDENTITIES.NAME.eq(updateUserRequest.getUsername())
+					.and(USER_IDENTITIES.USER_ID.eq(USERS.ID)))
+			.returning()
+			.fetchOne();
+
+		if (updateUserRequest.getPassword() != null) {
+			createUserPassword(user, updateUserRequest.getPassword());
+		}
+
+		UserProfile profile = userToUserProfile(user, null);
+		profile.setUserName(existingProfile.getUserName());
+
+		return profile;
 	}
 }
