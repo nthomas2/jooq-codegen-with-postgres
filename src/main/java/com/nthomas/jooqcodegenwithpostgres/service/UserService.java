@@ -104,7 +104,7 @@ public class UserService {
 			.fetchOptional()
 			;
 
-		if (result.isEmpty() || !passwordEncoder.matches(password, result.get().get(USER_PASSWORDS.PASSWORD))) {
+		if (!result.isPresent() || !passwordEncoder.matches(password, result.get().get(USER_PASSWORDS.PASSWORD))) {
 			LOG.info("Unsuccessful login for {}", username);
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Username or password invalid");
 		}
