@@ -83,7 +83,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	public void testUpdateUser() {
+	public void testUpdateUser() throws InterruptedException {
 		UpdateUserRequest updateUserRequest = new UpdateUserRequest();
 		updateUserRequest.setFirstName("NewFirst");
 		updateUserRequest.setLastName("NewLast");
@@ -97,8 +97,7 @@ public class UserServiceTest {
 		assertEquals(updateUserRequest.getLastName(), profile.getLastName());
 		assertEquals(updateUserRequest.getUsername(), profile.getUserName());
 
-		// TODO: why is this failing?
-//		userService.verify(updateUserRequest.getUsername(), updateUserRequest.getPassword());
+		userService.verify(updateUserRequest.getUsername(), updateUserRequest.getPassword());
 	}
 
 	@Test(expected = ResponseStatusException.class)

@@ -18,6 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    command: -c 'log_statement=all'
     environment:
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: password

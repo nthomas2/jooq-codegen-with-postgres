@@ -5,6 +5,8 @@ import static com.nthomas.jooqcodegenwithpostgres.generated.tables.UserPasswords
 import static com.nthomas.jooqcodegenwithpostgres.generated.tables.Users.USERS;
 
 import java.lang.invoke.MethodHandles;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Optional;
 
 import org.jooq.DSLContext;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -62,11 +65,12 @@ public class UserService {
 		return userToUserProfile(user, userIdentity);
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void createUserPassword(UsersRecord user, String password) {
 		context.insertInto(USER_PASSWORDS)
 		.set(USER_PASSWORDS.USER_ID, user.getId())
 		.set(USER_PASSWORDS.PASSWORD, passwordEncoder.encode(password))
+		.set(USER_PASSWORDS.CREATED_AT, Timestamp.from((new Date()).toInstant()))
 		.execute();
 	}
 
@@ -93,7 +97,6 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public UserProfile verify(String username, String password) {
-
 		Optional<Record> result = context.select()
 			.from(USERS)
 			.join(USER_PASSWORDS).on(USERS.ID.eq(USER_PASSWORDS.USER_ID))
