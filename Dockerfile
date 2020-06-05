@@ -8,6 +8,8 @@ ENV SPRING_DATASOURCE_USERNAME=appuser
 ENV SPRING_DATASOURCE_PASSWORD=password
 
 WORKDIR /app
+COPY mvnw .
+COPY .mvn ./.mvn
 COPY pom.xml .
 COPY src ./src
 
@@ -15,9 +17,10 @@ RUN chown postgres:postgres /var/log/postgresql/postgresql-9.6-main.log \
     && pg_ctlcluster 9.6 main start && pg_lsclusters \
     && gosu postgres psql -c "CREATE USER appuser WITH PASSWORD 'password';" \
     && gosu postgres psql -c "CREATE DATABASE appuser OWNER appuser;" \
-    && mvn clean install
+	&& /app/mvnw -v \
+    && /app/mvnw clean install
 
-FROM openjdk:11-jre
+FROM openjdk:8
 WORKDIR /app
 COPY --from=0 /app/target/*.jar ./target/
 COPY run.sh ./
